@@ -1,7 +1,5 @@
-import {useState} from "react";
 import GameBoard from "./components/GameBoard";
 import GameOver from "./components/GameOver";
-import {calculateWinner} from "./utils/calculateWinner"
 import { useTicTacToe } from "./hooks/useTicTacToe";
 
 function App() {
