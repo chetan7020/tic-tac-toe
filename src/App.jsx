@@ -5,12 +5,14 @@ import { useTicTacToe } from "./hooks/useTicTacToe";
 function App() {
 
   const {
-    board,
-    currentPlayer,
-    winner,
-    isDraw,
-    selectSquare,
-    resetGame
+      board,
+      currentPlayer,
+      winner,
+      isDraw,
+      canUndo,
+      selectSquare,
+      undo,
+      resetGame
   } = useTicTacToe();
 
   return (
@@ -22,6 +24,13 @@ function App() {
       )}
 
       <GameBoard board={board} onSelect={selectSquare}/>
+
+      {(!winner && !isDraw) && (
+        <div>
+          <button onClick={undo} disabled={!canUndo}>Undo</button>
+          <button onClick={resetGame}>Restart</button>
+        </div>
+      )}
 
       {(winner || isDraw) && (
         <GameOver winner={winner} onRestart={resetGame}/>

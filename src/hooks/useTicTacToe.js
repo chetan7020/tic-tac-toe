@@ -1,38 +1,61 @@
 import { useState } from "react";
 import { calculateWinner } from "../utils/calculateWinner";
 
-export function useTicTacToe(){
-  const [board, setBoard] = useState(Array(9).fill(null));
-  const [isXTurn, setIsXTurn] = useState(true);
+export function useTicTacToe() {
+    const [history, setHistory] = useState([Array(9).fill(null)]);
+    const [currentMove, setCurrentMove] = useState(0);
 
-  const winner = calculateWinner(board);
-  const isDraw = board.every(cell => cell != null) && !winner;
+    const board = history[currentMove];
+    const currentPlayer = currentMove % 2 === 0 ? "X" : "O";
 
-  function selectSquare(index) {
-    if(board[index] || winner) return;
+    const winner = calculateWinner(board);
+    const isDraw = checkDraw(board, winner);
 
-    setBoard(
-      prevBoard => {
-        const updatedBoard = [...prevBoard];
-        updatedBoard[index] = isXTurn ? "X" : "O";
-        return updatedBoard;
-      }
-    );
+    function selectSquare(index) {
+        if (!canMakeMove(index)) return;
 
-    setIsXTurn(prev => !prev);
-  }
+        const nextBoard = createNextBoard(index);
+        commitMove(nextBoard);
+    }
 
-  function resetGame(){
-    setBoard(Array(9).fill(null));
-    setIsXTurn(true);
-  }
+    function canMakeMove(index) {
+        return !board[index] && !winner;
+    }
 
-  return {
-    board,
-    currentPlayer: isXTurn ? "X" : "O",
-    winner,
-    isDraw,
-    selectSquare,
-    resetGame
-  }
+    function createNextBoard(index) {
+        const nextBoard = [...board];
+        nextBoard[index] = currentPlayer;
+        return nextBoard;
+    }
+
+    function commitMove(nextBoard) {
+        const nextHistory = history.slice(0, currentMove + 1);
+        setHistory([...nextHistory, nextBoard]);
+        setCurrentMove(nextHistory.length);
+    }
+
+    function undo() {
+        if (currentMove === 0) return;
+        setCurrentMove(m => m - 1);
+    }
+
+    function resetGame() {
+        setHistory([Array(9).fill(null)]);
+        setCurrentMove(0);
+    }
+
+    return {
+        board,
+        currentPlayer,
+        winner,
+        isDraw,
+        canUndo: currentMove > 0,
+        selectSquare,
+        undo,
+        resetGame,
+    };
+}
+
+function checkDraw(board, winner) {
+    return board.every(cell => cell !== null) && !winner;
 }
